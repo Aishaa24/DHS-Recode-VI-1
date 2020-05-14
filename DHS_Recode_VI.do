@@ -18,7 +18,7 @@ macro drop _all
 
 //NOTE FOR WINDOWS USERS : use "/" instead of "\" in your paths
 
-global root "C:/Users/wb500886/WBG/Sven Neelsen - World Bank/MEASURE UHC DATA"
+global root "C:\Users\wb536558\OneDrive - WBG\Documents\DHS\MEASURE UHC DATA"
 
 * Define path for data sources
 global SOURCE "${root}/RAW DATA/Recode VI"
@@ -40,7 +40,6 @@ foreach name in $DHScountries_Recode_VI{
 
 tempfile birth ind men hm hiv hh iso 
 
-
 ******************************
 *****domains using birth data*
 ******************************
@@ -48,7 +47,7 @@ use "${SOURCE}/DHS-`name'/DHS-`name'birth.dta", clear
 
     gen hm_age_mon = (v008 - b3)           //hm_age_mon Age in months (children only)
     gen name = "`name'"
-	
+
     do "${DO}/1_antenatal_care"
     do "${DO}/2_delivery_care"
     do "${DO}/3_postnatal_care"
@@ -56,6 +55,7 @@ use "${SOURCE}/DHS-`name'/DHS-`name'birth.dta", clear
     do "${DO}/8_child_illness"
     do "${DO}/10_child_mortality"
     do "${DO}/11_child_other"
+	
 
 *housekeeping for birthdata
    //generate the demographics for child who are dead or no longer living in the hh. 
@@ -88,10 +88,12 @@ save `birth'
 use "${SOURCE}/DHS-`name'/DHS-`name'ind.dta", clear	
 gen name = "`name'"
 gen hm_age_yrs = v012
+
     do "${DO}/4_sexual_health"
     do "${DO}/5_woman_anthropometrics"
     do "${DO}/16_woman_cancer"
 	do "${DO}/17_woman_cancer_age_ref.do"
+	
 	
 *housekeeping for ind data
 
@@ -112,6 +114,7 @@ gen name = "`name'"
     do "${DO}/9_child_anthropometrics"    
     do "${DO}/13_adult"
     do "${DO}/14_demographics"
+	
 	
 keep hv001 hv002 hvidx hc70 hc71 ///
 c_* ant_* a_* hm_* ln
@@ -138,11 +141,10 @@ save `hm',replace
 ************************************
 use "${SOURCE}/DHS-`name'/DHS-`name'hm.dta", clear
     rename (hv001 hv002 hvidx) (v001 v002 v003)
-
+	
     merge 1:m v001 v002 v003 using "${SOURCE}/DHS-`name'/DHS-`name'birth.dta"
     rename (v001 v002 v003) (hv001 hv002 hvidx) 
     drop _merge
-
     do "${DO}/15_household"
 
 keep hv001 hv002 hv003 hh_* 
@@ -186,9 +188,6 @@ gen name = "`name'"
 	preserve
 	do "${DO}/Quality_control"
 	save "${INTER}/quality_control-`name'",replace
-	cd "${INTER}"
-	do "${DO}/Quality_control_result"
-	save "${OUT}/quality_control",replace 
     restore 
 	
 *** Specify sample size to HEFPI
@@ -236,9 +235,6 @@ gen name = "`name'"
     do "${DO}/Label_var"
 	
 save "${OUT}/DHS-`name'.dta", replace  
+
 }
-
-
-
-
 
